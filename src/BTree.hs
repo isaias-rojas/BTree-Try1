@@ -38,15 +38,17 @@ balance (Node _ left x right)
     where
         hl = height left
         hr = height right
-
+        
 balanceLeft :: Tree a -> a -> Tree a -> Tree a
 balanceLeft (Node _ ll lx lr@(Node lrh _ _ _)) x r
     | height ll >= lrh = Node (1 + max lrh (height r)) (Node (1 + height ll) ll lx lr) x r
     | otherwise        = Node (1 + max (height ll) (height r)) ll lx (Node (1 + max lrh (height r)) lr x r)
-balanceLeft ll x r = Node (1 + max (height ll) (height r)) (Node (1 + height ll) ll x Leaf) Leaf r
+balanceLeft ll@(Node _ _ lx _) x r = Node (1 + max (height ll) (height r)) ll x r
+balanceLeft Leaf x r = Node 1 (Node 0 Leaf x Leaf) x r
 
 balanceRight :: Tree a -> a -> Tree a -> Tree a
 balanceRight l x (Node _ rl rx rr@(Node rrh _ _ _))
     | rrh >= height rl = Node (1 + max (height l) rrh) l x (Node (1 + rrh) rl rx rr)
     | otherwise        = Node (1 + max (height l) (height rl)) (Node (1 + max (height l) (height rl)) l x rl) rx rr
-balanceRight l x rr = Node (1 + max (height l) (height rr)) l x (Node (1 + height rr) Leaf Leaf rr)
+balanceRight l x rr@(Node _ _ _ rx) = Node (1 + max (height l) (height rr)) l x rr
+balanceRight l x Leaf = Node 1 l x (Node 0 Leaf x Leaf)
